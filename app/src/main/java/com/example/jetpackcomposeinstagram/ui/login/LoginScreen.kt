@@ -13,12 +13,12 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,13 +32,13 @@ import com.example.jetpackcomposeinstagram.R
 
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(loginViewModel: LoginViewModel){
     Box(
         Modifier
             .fillMaxWidth()
             .padding(8.dp)){
         Header(Modifier.align(Alignment.TopEnd))
-        Body(Modifier.align(Alignment.Center))
+        Body(Modifier.align(Alignment.Center),loginViewModel)
         Footer(Modifier.align(Alignment.BottomCenter))
     }
 
@@ -74,8 +74,8 @@ fun SignUp() {
 }
 
 @Composable
-fun Body(modifier: Modifier) {
-    var email by rememberSaveable { mutableStateOf("")}
+fun Body(modifier: Modifier, loginViewModel: LoginViewModel) {
+    val email:String by loginViewModel.email.observeAsState(initial = "")
     var password by rememberSaveable { mutableStateOf("")}
     var isLoginEnable by rememberSaveable { mutableStateOf(false)}
 
@@ -83,8 +83,7 @@ fun Body(modifier: Modifier) {
         ImageLogo(Modifier.align(Alignment.CenterHorizontally))
         Spacer(modifier = Modifier.size(16.dp))
         Email(email) {
-            email = it
-            isLoginEnable =  enableLogin(email,password)
+            loginViewModel.onLoginChanged(it)
         }
         Spacer(modifier = Modifier.size(4.dp))
         Password(password){
