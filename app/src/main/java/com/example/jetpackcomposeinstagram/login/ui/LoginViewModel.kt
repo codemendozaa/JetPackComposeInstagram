@@ -1,10 +1,13 @@
 package com.example.jetpackcomposeinstagram.login.ui
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.jetpackcomposeinstagram.login.domain.LoginUseCase
+import kotlinx.coroutines.launch
 
 class LoginViewModel:ViewModel() {
     val loginUseCase = LoginUseCase()
@@ -18,6 +21,9 @@ class LoginViewModel:ViewModel() {
     private val _isLoginEnable = MutableLiveData<Boolean>()
     val isLoginEnable : LiveData<Boolean> = _isLoginEnable
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading : LiveData<Boolean> = _isLoading
+
 
     fun onLoginChanged(email:String,password:String){
         _email.value = email
@@ -25,6 +31,17 @@ class LoginViewModel:ViewModel() {
         _isLoginEnable.value  = enableLogin(email,password)
     }
 
-    fun enableLogin(email:String,password:String)= Patterns.EMAIL_ADDRESS.matcher(email).matches() &&  password.length > 6
+    private fun enableLogin(email:String, password:String)= Patterns.EMAIL_ADDRESS.matcher(email).matches() &&  password.length > 6
 
+    fun onLoginSelected(){
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = loginUseCase(email.value!!,password.value!!)
+            if (result){
+                //Navegar a la siguiente pantalla
+                Log.i("codemendozaa","Result Ok")
+            }
+            _isLoading.value = false
+        }
+    }
 }
